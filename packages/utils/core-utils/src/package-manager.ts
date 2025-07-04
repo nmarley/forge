@@ -47,7 +47,7 @@ const PM_FROM_LOCKFILE: Record<string, SupportedPackageManager> = {
   'package-lock.json': 'npm',
   'yarn.lock': 'yarn',
   'pnpm-lock.yaml': 'pnpm',
-  'bun.lock': 'pnpm',
+  'bun.lock': 'bun',
   'bun.lockb': 'bun',
 };
 
