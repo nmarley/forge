@@ -72,16 +72,16 @@ describe('package-manager', () => {
       };
     });
 
-    it.each([{ pm: 'yarn' }, { pm: 'npm' }, { pm: 'pnpm' }])('should return $pm if NODE_INSTALLER=$pm', async ({ pm }) => {
+    it.each([{ pm: 'yarn' }, { pm: 'npm' }, { pm: 'pnpm' }, { pm: 'bun' }])('should return $pm if NODE_INSTALLER=$pm', async ({ pm }) => {
       process.env.NODE_INSTALLER = pm;
       await expect(resolvePackageManager()).resolves.toHaveProperty('executable', pm);
     });
 
     it('should return npm if package manager is unsupported', async () => {
-      process.env.NODE_INSTALLER = 'bun';
+      process.env.NODE_INSTALLER = 'fun';
       console.warn = vi.fn();
       await expect(resolvePackageManager()).resolves.toHaveProperty('executable', 'npm');
-      expect(console.warn).toHaveBeenCalledWith('⚠', expect.stringContaining('Package manager bun is unsupported'));
+      expect(console.warn).toHaveBeenCalledWith('⚠', expect.stringContaining('Package manager fun is unsupported'));
     });
   });
 
