@@ -2,7 +2,7 @@ import { spawn } from '@malept/cross-spawn-promise';
 import findUp from 'find-up';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { resolvePackageManager, spawnPackageManager } from '../src/package-manager';
+import { SupportedPackageManager, resolvePackageManager, spawnPackageManager } from '../src/package-manager';
 
 vi.mock('@malept/cross-spawn-promise');
 vi.mock('find-up', async (importOriginal) => {
@@ -100,8 +100,28 @@ describe('package-manager', () => {
   });
 
   it('should use the package manager for the nearest ancestor lockfile if detected', async () => {
-    vi.mocked(findUp).mockResolvedValue('/Users/foo/bar/yarn.lock');
-    await expect(resolvePackageManager()).resolves.toHaveProperty('executable', 'yarn');
+    // save off and unset environment variables so that lockfile resolution (only) is tested
+    const oldInstaller = process.env.NODE_INSTALLER;
+    delete process.env.NODE_INSTALLER;
+    const oldNpmConfigUserAgent = process.env.npm_config_user_agent;
+    delete process.env.npm_config_user_agent;
+
+    const cases: Array<{ lockfile: string; expected: SupportedPackageManager }> = [
+      { lockfile: 'yarn.lock', expected: 'yarn' },
+      { lockfile: 'pnpm-lock.yaml', expected: 'pnpm' },
+      { lockfile: 'package-json.lock', expected: 'npm' },
+      { lockfile: 'bun.lock', expected: 'bun' },
+      { lockfile: 'bun.lockb', expected: 'bun' },
+    ];
+
+    for (const { lockfile, expected } of cases) {
+      vi.mocked(findUp).mockResolvedValue(`/Users/foo/bar/${lockfile}`);
+      await expect(resolvePackageManager()).resolves.toHaveProperty('executable', expected);
+    }
+
+    // restore environment variables for other tests
+    process.env.NODE_INSTALLER = oldInstaller;
+    process.env.npm_config_user_agent = oldNpmConfigUserAgent;
   });
 
   it('should fall back to npm if no other strategy worked', async () => {
