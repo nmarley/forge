@@ -27,6 +27,7 @@ describe('package-manager', () => {
       { ua: 'yarn/1.22.22 npm/? node/v22.13.0 darwin arm64', pm: 'yarn', version: '1.22.22' },
       { ua: 'pnpm/10.0.0 npm/? node/v20.11.1 darwin arm64', pm: 'pnpm', version: '10.0.0' },
       { ua: 'npm/10.9.2 node/v22.13.0 darwin arm64 workspaces/false', pm: 'npm', version: '10.9.2' },
+      { ua: 'bun/1.2.17 npm/? node/v22.6.0 darwin x64', pm: 'bun', version: '1.2.17' },
     ])('with $ua', async ({ ua, pm, version }) => {
       process.env.npm_config_user_agent = ua;
       await expect(resolvePackageManager()).resolves.toHaveProperty('executable', pm);
